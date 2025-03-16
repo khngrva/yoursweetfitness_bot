@@ -502,9 +502,6 @@ def continue_workout(message, location):
         bot.send_message(message.chat.id, "Please choose a valid option:")
         bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
 
-@app.route('/')
-def home():
-    return "Bot is running!"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use Heroku's assigned port
