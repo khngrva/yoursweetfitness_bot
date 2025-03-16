@@ -375,10 +375,13 @@ Sets: 3-4 sets of 10-15 seconds"""
     },
 }
 
-@app.route('/' + TOKEN, methods=['POST'])
+@app.route('/webhook', methods=['POST'])
 def webhook():
-    update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
-    bot.process_new_updates([update])
+   try:
+        update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
+        bot.process_new_updates([update])
+    except Exception as e:
+        print(f"Error: {e}")
     return "ok", 200
 
 @app.route('/')
