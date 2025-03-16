@@ -5,7 +5,7 @@ from flask import Flask, request
 import os
 
 
-TOKEN = os.environ.get("7650599259:AAGF8Gv5Z7Z-kzp1xjuor_-5bIntFVaRvbM")
+TOKEN = os.environ.get("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -429,74 +429,38 @@ def select_exercise(message, location):
         bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
         return
 
-    key_prefix = f"{location}_{body_part}"
-    exercise_count = sum(1 for key in workout_videos if key.startswith(f"{key_prefix}_"))
+    # Get the list of exercises for the selected body part and location
+    exercises = {key: value for key, value in workout_videos.items() if location in key and body_part in key}
+    
+    if not exercises:
+        bot.send_message(message.chat.id, "Sorry, no exercises available for this selection.")
+        return
+    
+    # List available exercises and ask the user to select one
+    markup = ReplyKeyboardMarkup(resize_keyboard=True)
+    for exercise in exercises.keys():
+        markup.add(KeyboardButton(exercise.replace("_", " ").title()))
 
-    if exercise_count > 0:
-        markup = ReplyKeyboardMarkup(resize_keyboard=True)
-        buttons = [KeyboardButton(f"Exercise {i+1}") for i in range(exercise_count)]
-        markup.add(*buttons)
-        bot.send_message(message.chat.id, "Which exercise do you want?", reply_markup=markup)
-        bot.register_next_step_handler(message, lambda m: send_workout(m, key_prefix))
-    else:
-        markup = ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(
-            message.chat.id,
-            "Sorry, I don't have that workout yet. More coming soon! 😊\n"
-            "Please choose another body part:",
-            reply_markup=markup,
-        )
-        bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
+    bot.send_message(message.chat.id, f"Here are the available {body_part} exercises at {location}:", reply_markup=markup)
+    bot.register_next_step_handler(message, lambda m: show_exercise_details(m, exercises))
 
-def send_workout(message, key_prefix):
-    try:
-        exercise_num = message.text.split()[-1]
-        if not exercise_num.isdigit():
-            raise ValueError
+def show_exercise_details(message, exercises):
+    exercise_name = message.text.lower().replace(" ", "_")
+    
+    if exercise_name not in exercises:
+        bot.send_message(message.chat.id, "Sorry, I couldn't find that exercise. Please choose one from the available options.")
+        return
+    
+    exercise = exercises[exercise_name]
+    video = exercise["video"]
+    text = exercise["text"]
 
-        full_key = f"{key_prefix}_{exercise_num}"
-        data = workout_videos[full_key]
-
-        bot.send_message(message.chat.id, data["text"])
-        bot.send_video(message.chat.id, data["video"])
-
-        markup = ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(KeyboardButton("Yes, Continue"), KeyboardButton("No, Finish"))
-        bot.send_message(
-            message.chat.id,
-            "Do you want to continue working out or finish your session?",
-            reply_markup=markup,
-        )
-        bot.register_next_step_handler(message, lambda m: continue_workout(m, key_prefix.split('_')[0]))
-
-    except (KeyError, ValueError):
-        bot.send_message(message.chat.id, "Invalid choice. Please use /exercise to start again.")
-
-def continue_workout(message, location):
-    if message.text == "Yes, Continue":
-        markup = ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(
-            message.chat.id,
-            f"What body part next at {location.capitalize()}?",
-            reply_markup=markup,
-        )
-        bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
-    elif message.text == "No, Finish":
-        markup = ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add(KeyboardButton("Start New Session 🏋️"))
-        bot.send_message(
-            message.chat.id,
-            "Great job completing your workout! 🎉\n"
-            "Ready for another session?",
-            reply_markup=markup,
-        )
-    else:
-        bot.send_message(message.chat.id, "Please choose a valid option:")
-        bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
+    # Send the exercise details
+    bot.send_message(
+        message.chat.id,
+        f"**{exercise_name.replace('_', ' ').title()}**\n\n{text}",
+    )
+    bot.send_video(message.chat.id, video)
 
 if __name__ == '__main__':
-    bot.remove_webhook()
-    bot.set_webhook(url=os.environ.get("WEBHOOK_URL") + TOKEN)
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+    app.run(port=5000)
