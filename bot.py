@@ -5,7 +5,10 @@ from flask import Flask, request
 import os
 
 
-TOKEN = os.environ.get('BOT_TOKEN')
+TOKEN = os.getenv("TOKEN")
+if TOKEN is None:
+    raise ValueError("TOKEN environment variable is not set")
+
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
@@ -496,7 +499,10 @@ def continue_workout(message, location):
         bot.send_message(message.chat.id, "Please choose a valid option:")
         bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
 
-if __name__ == '__main__':
-    bot.remove_webhook()
-    bot.set_webhook(url=os.environ.get("WEBHOOK_URL") + "/" + TOKEN)
-    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
+@app.route('/')
+def home():
+    return "Bot is running!"
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))  # Use Heroku's assigned port
+    app.run(host="0.0.0.0", port=port)
