@@ -1,10 +1,13 @@
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-import time
 import requests
+from flask import Flask, request
+import os
 
-TOKEN = "7650599259:AAGF8Gv5Z7Z-kzp1xjuor_-5bIntFVaRvbM"
+
+TOKEN = os.environ.get"7650599259:AAGF8Gv5Z7Z-kzp1xjuor_-5bIntFVaRvbM"
 bot = telebot.TeleBot(TOKEN)
+app = Flask(__name__)
 
 workout_videos = {
     # Gym Arms Exercises
@@ -369,6 +372,16 @@ Sets: 3-4 sets of 10-15 seconds"""
     },
 }
 
+@app.route('/' + TOKEN, methods=['POST'])
+def webhook():
+    update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
+    bot.process_new_updates([update])
+    return "ok", 200
+
+@app.route('/')
+def index():
+    return "Hello, your bot is running!"
+
 def show_start_menu(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton("/exercise"), KeyboardButton("/help"))
@@ -483,14 +496,7 @@ def continue_workout(message, location):
         bot.send_message(message.chat.id, "Please choose a valid option:")
         bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
 
-# Start the bot
-while True:
-    try:
-        print("Starting bot...")
-        bot.polling(timeout=60, long_polling_timeout=60)
-    except requests.exceptions.ReadTimeout as e:
-        print(f"Timeout error: {e}. Retrying in 10 seconds...")
-        time.sleep(10)
-    except Exception as e:
-        print(f"Unexpected error: {e}. Restarting bot in 10 seconds...")
-        time.sleep(10)
+if __name__ == '__main__':
+    bot.remove_webhook()
+    bot.set_webhook(url=os.environ.get("WEBHOOK_URL") + TOKEN)
+    app.run(host="0.0.0.0", port=int(os.environ.get('PORT', 5000)))
