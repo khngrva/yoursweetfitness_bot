@@ -1,7 +1,7 @@
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-import requests  # Add this import for handling requests exceptions
-import time  # Add this import for time.sleep
+import time
+import requests
 
 TOKEN = "7650599259:AAGF8Gv5Z7Z-kzp1xjuor_-5bIntFVaRvbM"
 bot = telebot.TeleBot(TOKEN)
@@ -369,14 +369,15 @@ Sets: 3-4 sets of 10-15 seconds"""
     },
 }
 
-# Handlers remain the same until select_exercise
 def show_start_menu(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton("/exercise"), KeyboardButton("/help"))
-    bot.send_message(message.chat.id, 
-                    "Welcome to Your Fitness Assistant! What would you like to do? 💪\n"
-                    "Choose an option below or use /help for guidance:",
-                    reply_markup=markup)
+    bot.send_message(
+        message.chat.id,
+        "Welcome to Your Fitness Assistant! What would you like to do? 💪\n"
+        "Choose an option below or use /help for guidance:",
+        reply_markup=markup,
+    )
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -384,9 +385,11 @@ def start(message):
 
 @bot.message_handler(commands=['help'])
 def help_command(message):
-    bot.send_message(message.chat.id, 
-                    "I can help you find workouts based on your needs! 💪\n"
-                    "Use /exercise to get started.")
+    bot.send_message(
+        message.chat.id,
+        "I can help you find workouts based on your needs! 💪\n"
+        "Use /exercise to get started.",
+    )
 
 @bot.message_handler(commands=['exercise'])
 def exercise(message):
@@ -402,24 +405,10 @@ def workout_location(message):
     bot.send_message(message.chat.id, f"Great! What body part do you want to train at {location}?", reply_markup=markup)
     bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
 
-@bot.message_handler(func=lambda message: message.text == "Start Again")
-def handle_restart(message):
-    exercise(message)
-
-@bot.message_handler(func=lambda message: True, content_types=['text'], priority=10)
-def handle_unrecognized(message):
-    """Show start menu for any unrecognized messages"""
-    show_start_menu(message)
-
-@bot.message_handler(func=lambda message: message.text == "Start New Session 🏋️")
-def handle_new_session(message):
-    exercise(message)
-
 def select_exercise(message, location):
     body_part = message.text.lower()
     valid_body_parts = ["arms", "legs", "abs", "chest"]
-    
-    # Validate body part input
+
     if body_part not in valid_body_parts:
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
@@ -428,44 +417,44 @@ def select_exercise(message, location):
         return
 
     key_prefix = f"{location}_{body_part}"
-    
-    # Count available exercises dynamically
     exercise_count = sum(1 for key in workout_videos if key.startswith(f"{key_prefix}_"))
 
-    if exercise_count > 0:  # <-- FIX INDENTATION FROM HERE
+    if exercise_count > 0:
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = [KeyboardButton(f"Exercise {i+1}") for i in range(exercise_count)]
         markup.add(*buttons)
         bot.send_message(message.chat.id, "Which exercise do you want?", reply_markup=markup)
         bot.register_next_step_handler(message, lambda m: send_workout(m, key_prefix))
     else:
-        # Send error message and re-prompt for body part
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(message.chat.id, 
-                        "Sorry, I don't have that workout yet. More coming soon! 😊\n"
-                        "Please choose another body part:",
-                        reply_markup=markup)
+        bot.send_message(
+            message.chat.id,
+            "Sorry, I don't have that workout yet. More coming soon! 😊\n"
+            "Please choose another body part:",
+            reply_markup=markup,
+        )
         bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
 
 def send_workout(message, key_prefix):
     try:
-        # Extract exercise number from message
         exercise_num = message.text.split()[-1]
         if not exercise_num.isdigit():
             raise ValueError
-            
+
         full_key = f"{key_prefix}_{exercise_num}"
         data = workout_videos[full_key]
-        
-        # Send description and video
+
         bot.send_message(message.chat.id, data["text"])
         bot.send_video(message.chat.id, data["video"])
-        
-        # Continue prompt
+
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Yes, Continue"), KeyboardButton("No, Finish"))
-        bot.send_message(message.chat.id, "Do you want to continue working out or finish your session?", reply_markup=markup)
+        bot.send_message(
+            message.chat.id,
+            "Do you want to continue working out or finish your session?",
+            reply_markup=markup,
+        )
         bot.register_next_step_handler(message, lambda m: continue_workout(m, key_prefix.split('_')[0]))
 
     except (KeyError, ValueError):
@@ -475,30 +464,33 @@ def continue_workout(message, location):
     if message.text == "Yes, Continue":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(message.chat.id, 
-                        f"What body part next at {location.capitalize()}?",
-                        reply_markup=markup)
+        bot.send_message(
+            message.chat.id,
+            f"What body part next at {location.capitalize()}?",
+            reply_markup=markup,
+        )
         bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
     elif message.text == "No, Finish":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Start New Session 🏋️"))
-        bot.send_message(message.chat.id, 
-                        "Great job completing your workout! 🎉\n"
-                        "Ready for another session?",
-                        reply_markup=markup)
+        bot.send_message(
+            message.chat.id,
+            "Great job completing your workout! 🎉\n"
+            "Ready for another session?",
+            reply_markup=markup,
+        )
     else:
         bot.send_message(message.chat.id, "Please choose a valid option:")
         bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
 
+# Start the bot
 while True:
     try:
         print("Starting bot...")
         bot.polling(timeout=60, long_polling_timeout=60)
     except requests.exceptions.ReadTimeout as e:
         print(f"Timeout error: {e}. Retrying in 10 seconds...")
-        time.sleep(10)  # Wait 10 seconds before retrying
+        time.sleep(10)
     except Exception as e:
-        print(f"Unexpected error: {e}. Restarting bot...")
-        time.sleep(10)  # Wait 10 seconds before restarting
-
-bot.polling(timeout=60, long_polling_timeout=60)
+        print(f"Unexpected error: {e}. Restarting bot in 10 seconds...")
+        time.sleep(10)
