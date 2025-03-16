@@ -6,10 +6,6 @@ import os
 
 
 TOKEN = os.environ.get('BOT_TOKEN')
-print(f"TOKEN: {TOKEN}")  # Debugging line
-if not TOKEN:
-    raise ValueError("BOT_TOKEN environment variable is not set!")
-
 bot = telebot.TeleBot(TOKEN)
 app = Flask(__name__)
 
