@@ -1,21 +1,20 @@
+from flask import Flask, request  # <-- ADD THIS
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
-import requests
-from flask import Flask, request
-import os
+import os  # <-- ADD THIS
 
+# Initialize Flask app
+app = Flask(__name__)  # <-- ADD THIS
 
-TOKEN = os.getenv("TOKEN")
-if TOKEN is None:
-    raise ValueError("TOKEN environment variable is not set")
-
+# Get token from environment variables (secure)
+TOKEN = os.environ.get('TOKEN', "7666196084:AAH_Wn7kaZEy_-g-EnhN-eEqFf0svH_PAqU")  # <-- MODIFIED
 bot = telebot.TeleBot(TOKEN)
-app = Flask(__name__)
+
 
 workout_videos = {
     # Gym Arms Exercises
     "gym_arms_1": {
-        "video": "BAACAgIAAxkBAAKhMWfSFQwNXQLufCVxInbU7yzQQjeuAAItbgACWayRSoCo97N0pxFeNgQ",
+        "video": "BAACAgIAAxkBAAKrEmfYuLrSSen5yJxxeTjeUqXDKoy5AAL8cAAC1WfISqqalcfLqH7bNgQ",
         "text": """Curl Bar Exercise
 
 The Curl Bar Exercise targets the biceps 💪, forearms ✋, and triceps 🏋️‍♂️, helping to build arm strength and muscle definition. It’s great for reducing wrist strain compared to straight bar curls.
@@ -33,7 +32,7 @@ Recommended Sets & Reps
 For both males and females, aim for 3-4 sets of 8-12 reps for muscle growth. Adjust the weight and reps based on your strength and fitness goals 🏋🏻‍♀️"""  # shortened for space
     },
     "gym_arms_2": {
-        "video": "BAACAgIAAxkBAAKg62fR8s29fM7z1z2LOSW3RY9RwX8YAAIKeAACpzaQSt4rXAcqtgGONgQ",
+        "video": "BAACAgIAAxkBAAKrFGfYuOQdUW3VEnHdzuXhIV1YmnfTAAL9cAAC1WfISrkMjgZEDvpVNgQ",
         "text": """The Intermediate Bench Press is a barbell-based exercise that primarily targets the chest 💪, shoulders 🏋️‍♂️, and triceps 💥.
 
 Benefits
@@ -52,7 +51,7 @@ Incorporate the Intermediate Bench Press into your routine! 💥"""  # shortened
 
     # Home Arms Exercises
     "home_arms_1": {
-        "video": "BAACAgIAAxkBAAKhQGfSGTsU1u1VTpJ3pcFldPHjkBmsAAI1bgACWayRSvrahWyurCL6NgQ",
+        "video": "BAACAgIAAxkBAAKq5GfYssEm1orJM7ko-DBSwbS2uxp0AALWcAAC1WfISvQvzaDhx3QJNgQ",
         "text": """Reverse Facing Push-Ups
 
 Reverse Facing Push-Ups are a variation where you perform push-ups with your back facing the floor and your feet elevated. This targets the upper chest, shoulders, and triceps 💪, and adds a greater challenge to the standard push-up.
@@ -77,7 +76,7 @@ Recommended Sets & Reps
 Challenge your upper body! Try Reverse Facing Push-Ups! 💥"""  # shortened
     },
     "home_arms_2": {
-        "video": "BAACAgIAAxkBAAKhL2fSFQOYzfCjQwZDArhLyXYIWU-MAAIvbgACWayRSmvrekQ8ny5NNgQ",
+        "video": "BAACAgIAAxkBAAKrDmfYt_F1gQPN45n2HW6kwPK_TxScAAL2cAAC1WfISnQqv3zjvvVmNgQ",
         "text": """Archer Push-Ups
 
 Archer Push-Ups are a challenging push-up variation that targets the chest, shoulders, and triceps 💪, while also improving arm strength and stability. They involve one arm doing more of the work, similar to an archer drawing a bow.
@@ -102,7 +101,7 @@ Recommended Sets & Reps
 Want to challenge your upper body? Add Archer Push-Ups to your routine! 💥."""  # shortened
     },
     "home_arms_3": {
-        "video": "BAACAgIAAxkBAAKhOmfSGAO2EwruOiaSN3ZrcJZ8ha9wAAIubgACWayRSnMYHReShfEeNgQ",
+        "video": "BAACAgIAAxkBAAKrEGfYuC3sDJFOBpwRGzDPuDhuUrWBAAL3cAAC1WfISunTUvpIq7tTNgQ",
         "text": """Reverse Grip Push-Ups
 
 Reverse Grip Push-Ups target the upper chest, shoulders, triceps 💪, and forearms for improved stability. This variation shifts focus for a more complete push-up routine.
@@ -128,7 +127,7 @@ Ready to boost your chest and shoulder strength? Add Reverse Grip Push-Ups! 💥
     }, 
     # Gym Legs Exercises
     "gym_legs_1": {
-        "video": "BAACAgIAAxkBAAKhRmfSH9FQhAamkbs21n5y6EyChgmpAAI7bgACWayRSsWVxD-_RDPSNgQ",
+        "video": "BAACAgIAAxkBAAKrFmfYuV9NsZMBXChrAaVZ6XaZojMYAAL_cAAC1WfISppNNditM1vzNgQ",
         "text": """Stationary Bike (Indoor Cycle)
 
 The stationary bike targets the legs, specifically the quadriceps, hamstrings, and calves 🚴. It’s an excellent low-impact exercise for strengthening and toning your lower body while improving leg endurance.
@@ -149,7 +148,7 @@ Recommended Time
 Want stronger legs? Add the stationary bike to your workout routine! 💥"""
      },
     "gym_legs_2": {
-        "video": "BAACAgIAAxkBAAKhSGfSH9hLqVQORKT1YARuzmB3g1mVAAI_bgACWayRStGeP3epDFNTNgQ",
+        "video": "BAACAgIAAxkBAAKrGGfYuYIc8lpPdVmLOQkn5Lo80omYAAL-cAAC1WfISmk092XnAAFXZDYE",
         "text": """Walking Incline on the Treadmill
 
 Walking on an incline treadmill targets the legs, specifically the quadriceps, hamstrings, and glutes 🍑. The incline increases the intensity, helping to tone and strengthen the lower body.
@@ -171,7 +170,7 @@ Boost your leg strength! Incorporate Walking Incline Treadmill into your workout
     },
     # New Home Legs Exercises
     "home_legs_1": {
-        "video": "BAACAgIAAxkBAAKjcWfTc8w-fHsIOeqqhniD_hfxacrqAAK4agACWayZSruwl_YqKT6VNgQ",
+        "video": "BAACAgIAAxkBAAKrHmfYuk8HoIAQHScRI2BLNU0YqwQRAAIBcQAC1WfISt-bAAFixdBXRzYE",
         "text": """Standard Forward Lunge
 
 The standard forward lunge targets the glutes, quadriceps, and hamstrings 🍑. This classic exercise is great for building strength, improving balance, and toning the lower body.
@@ -195,7 +194,7 @@ Recommended Sets & Reps
 Want to build stronger legs? Add the Standard Forward Lunge to your workout! 💥"""
     },
     "home_legs_2": {
-        "video": "BAACAgIAAxkBAAKiaWfS1pjU6hkaX2x6yPM1FxUu9WjCAAILZAACWayZSuvwLdlUmOYnNgQ",
+        "video": "BAACAgIAAxkBAAKrHGfYui-GiIW0kiN2Xe-EO6F8uy2VAANxAALVZ8hKDM3NFyhmug42BA",
         "text": """Side Lunge
 
 The side lunge primarily targets the glutes, quadriceps, and hamstrings, while also engaging the inner thighs 🍑. This movement focuses on lateral leg strength and flexibility, helping improve balance and stability.
@@ -219,7 +218,7 @@ Recommended Sets & Reps
 Want to target your lower body and enhance mobility? Add the Side Lunge to your workout! 💥"""
      }, 
      "home_legs_3": {
-        "video": "BAACAgIAAxkBAAKiZ2fS1pKasjIN98rZHHPGmuGq8yeuAAIIZAACWayZSpDxi9BfHqsoNgQ",
+        "video": "BAACAgIAAxkBAAKrIGfYum6aFL0cYiBoPUMAAX85RB_fXAACAnEAAtVnyEpzOnfiqQnJuzYE",
         "text": """Curtsy Lunge
 
 The curtsy lunge targets the glutes, quadriceps, and hamstrings 🍑 while also improving balance and stability. This variation of the lunge adds a lateral movement, making it great for toning the legs and shaping the lower body.
@@ -244,7 +243,7 @@ Want to shape your legs and glutes? Try the Curtsy Lunge! 💥"""
     }, 
     # Home Abs Exercises
     "home_abs_1": {
-        "video": "BAACAgIAAxkBAAKjdWfTeYgXEPLSC5EQYNqFF0KJK2arAAJTbgACWayRSiHb-Ib7BXqsNgQ",
+        "video": "BAACAgIAAxkBAAKrKGfYvVV1a47kEAa51J9x1GMgQJY9AAIJcQAC1WfISpaXsKNpwK0KNgQ",
         "text": """Crunch
 
 The crunch is a classic core exercise targeting the abdominal muscles. It's great for building core strength and endurance.
@@ -258,7 +257,7 @@ How to Perform:
 Sets: 3-4 sets of 15-20 reps"""
     },
     "home_abs_2": {
-        "video": "BAACAgIAAxkBAAKjd2fTeZM7aRMF7Sd1hKSjluEjrwJgAALOXwACiE6RSnDqVRYxsXZzNgQ",
+        "video": "BAACAgIAAxkBAAKrKmfYvXCbrobhNYEQUkT_Ge-NM8SoAAIKcQAC1WfISg-xy-HuB-hkNgQ",
         "text": """Heel Touch
 
 Heel touches target the obliques and lower abs, improving core stability.
@@ -272,7 +271,7 @@ How to Perform:
 Sets: 3 sets of 20 reps (10 per side)"""
     },
     "home_abs_3": {
-        "video": "BAACAgIAAxkBAAKjeWfTeaMoEJhAdgyu8POZ8FLiz9CUAALHXwACiE6RSnc7biCszs8YNgQ",
+        "video": "BAACAgIAAxkBAAKrJmfYvSc2_wsmvwtBdCyV_ZpZ1MxiAAIIcQAC1WfISuAFIS-rxxWjNgQ",
         "text": """Side Crunch
 
 Targets oblique muscles for a stronger core and better waist definition.
@@ -288,7 +287,7 @@ Sets: 3 sets of 15 reps per side"""
 
     # Gym Abs Exercises
     "gym_abs_1": {
-        "video": "BAACAgIAAxkBAAKjfWfTebtvoxh5iAQR0VPf8ILBarPuAAK_XwACiE6RSh9KH7QodVnSNgQ",
+        "video": "BAACAgIAAxkBAAKrJGfYvQ6GP22U254AAUVnRSIrsr8WPAACB3EAAtVnyEqNSpOk2XXRLjYE",
         "text": """Weighted Dead Bug
 
 Advanced core exercise using weights for increased resistance.
@@ -302,7 +301,7 @@ How to Perform:
 Sets: 3-4 sets of 10-12 reps"""
     },
     "gym_abs_2": {
-        "video": "BAACAgIAAxkBAAKjemfTeae7Lrv8f4ZuAk4_C5QihvHxAALDXwACiE6RSuYobnBQ8KibNgQ",
+        "video": "BAACAgIAAxkBAAKrImfYvOo5bCZ_SnNjWQGTtwzS2tnMAAIGcQAC1WfISrC67GWKW8pQNgQ",
         "text": """Decline Sit-Ups
 
 Advanced sit-up variation using a decline bench for increased difficulty.
@@ -318,7 +317,7 @@ Sets: 3-4 sets of 12-15 reps"""
 
     # Gym Chest Exercises
     "gym_chest_1": {
-        "video": "BAACAgIAAxkBAAKjhWfTefmzssXIp31ouurH_MvZ3sKEAAK0XwACiE6RStdARk3AQfA2NgQ",
+        "video": "BAACAgIAAxkBAAKrLGfYvYnCXNg8xnynTo-eKIa8bugRAAILcQAC1WfISpkQvahh8oW0NgQ",
         "text": """Cable Flyes
 
 Cable flyes target the chest muscles, specifically the pectoralis major, helping to build chest strength and definition.
@@ -332,7 +331,7 @@ How to Perform:
 Sets: 3-4 sets of 10-12 reps"""
     },
     "gym_chest_2": {
-        "video": "BAACAgIAAxkBAAKjg2fTefSt0diSPBXqwBRPb34pZjjHAAJ1cQACiE6ZSjjQrTrfR3qKNgQ",
+        "video": "BAACAgIAAxkBAAKrLmfYvcG527w8Pg4cO9wkRkRYdIduAAIMcQAC1WfISmGqNpGiSC-sNgQ",
         "text": """Pec Deck Machine
 
 The pec deck machine isolates the chest muscles, providing a focused workout for the pectorals.
@@ -348,7 +347,7 @@ Sets: 3-4 sets of 10-12 reps"""
 
     # Home Chest Exercises
     "home_chest_1": {
-        "video": "BAACAgIAAxkBAAKjgWfTee4ze5yFA8ma1tO8c3ELRQnOAAJ3cQACiE6ZSsXHjGHnEYTpNgQ",
+        "video": "BAACAgIAAxkBAAKrMmfYvfJOpQABjZrQkBOmFkqncsK5VwACD3EAAtVnyEry_LPX6xJ_mjYE",
         "text": """Arm Circles
 
 Arm circles are a simple yet effective exercise to warm up and engage the chest, shoulders, and arms.
@@ -361,7 +360,7 @@ How to Perform:
 Sets: 3 sets of 20-30 seconds"""
     },
     "home_chest_2": {
-        "video": "BAACAgIAAxkBAAKjf2fTeecPfy4hjwPxRqk7xoaCITibAAJ0cQACiE6ZSu_s08wnwm1pNgQ",
+        "video": "BAACAgIAAxkBAAKrMGfYvdhyiQMblt497iwFhEqRXJqJAAINcQAC1WfISmUkfP0SFuqdNgQ",
         "text": """Isometric Chest Squeeze
 
 The isometric chest squeeze is a static exercise that targets the chest muscles, improving strength and endurance.
@@ -375,28 +374,29 @@ Sets: 3-4 sets of 10-15 seconds"""
     },
 }
 
+# ========== WEBHOOK SETUP ========== #  # <-- NEW SECTION
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    try:
-        update = telebot.types.Update.de_json(request.stream.read().decode('utf-8'))
+    if request.headers.get('content-type') == 'application/json':
+        json_string = request.get_data().decode('utf-8')
+        update = telebot.types.Update.de_json(json_string)
         bot.process_new_updates([update])
-    except Exception as e:
-        print(f"Error: {e}")
-    return "ok", 200
+        return '', 200
+    return 'Invalid content type', 403
 
-@app.route('/')
-def index():
-    return "Hello, your bot is running!"
+def set_webhook():
+    bot.remove_webhook()
+    webhook_url = f'https://github.com/khngrva/yoursweetfitness_bot.git'  # Replace with your actual URL
+    bot.set_webhook(url=webhook_url)
 
+# Handlers remain the same until select_exercise
 def show_start_menu(message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
     markup.add(KeyboardButton("/exercise"), KeyboardButton("/help"))
-    bot.send_message(
-        message.chat.id,
-        "Welcome to Your Fitness Assistant! What would you like to do? 💪\n"
-        "Choose an option below or use /help for guidance:",
-        reply_markup=markup,
-    )
+    bot.send_message(message.chat.id, 
+                    "Welcome to Your Fitness Assistant! What would you like to do? 💪\n"
+                    "Choose an option below or use /help for guidance:",
+                    reply_markup=markup)
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -404,11 +404,9 @@ def start(message):
 
 @bot.message_handler(commands=['help'])
 def help_command(message):
-    bot.send_message(
-        message.chat.id,
-        "I can help you find workouts based on your needs! 💪\n"
-        "Use /exercise to get started.",
-    )
+    bot.send_message(message.chat.id, 
+                    "I can help you find workouts based on your needs! 💪\n"
+                    "Use /exercise to get started.")
 
 @bot.message_handler(commands=['exercise'])
 def exercise(message):
@@ -424,10 +422,24 @@ def workout_location(message):
     bot.send_message(message.chat.id, f"Great! What body part do you want to train at {location}?", reply_markup=markup)
     bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
 
+@bot.message_handler(func=lambda message: message.text == "Start Again")
+def handle_restart(message):
+    exercise(message)
+
+@bot.message_handler(func=lambda message: True, content_types=['text'], priority=10)
+def handle_unrecognized(message):
+    """Show start menu for any unrecognized messages"""
+    show_start_menu(message)
+
+@bot.message_handler(func=lambda message: message.text == "Start New Session 🏋️")
+def handle_new_session(message):
+    exercise(message)
+
 def select_exercise(message, location):
     body_part = message.text.lower()
     valid_body_parts = ["arms", "legs", "abs", "chest"]
-
+    
+    # Validate body part input
     if body_part not in valid_body_parts:
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
@@ -436,44 +448,44 @@ def select_exercise(message, location):
         return
 
     key_prefix = f"{location}_{body_part}"
+    
+    # Count available exercises dynamically
     exercise_count = sum(1 for key in workout_videos if key.startswith(f"{key_prefix}_"))
 
-    if exercise_count > 0:
+    if exercise_count > 0:  # <-- FIX INDENTATION FROM HERE
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         buttons = [KeyboardButton(f"Exercise {i+1}") for i in range(exercise_count)]
         markup.add(*buttons)
         bot.send_message(message.chat.id, "Which exercise do you want?", reply_markup=markup)
         bot.register_next_step_handler(message, lambda m: send_workout(m, key_prefix))
     else:
+        # Send error message and re-prompt for body part
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(
-            message.chat.id,
-            "Sorry, I don't have that workout yet. More coming soon! 😊\n"
-            "Please choose another body part:",
-            reply_markup=markup,
-        )
+        bot.send_message(message.chat.id, 
+                        "Sorry, I don't have that workout yet. More coming soon! 😊\n"
+                        "Please choose another body part:",
+                        reply_markup=markup)
         bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
 
 def send_workout(message, key_prefix):
     try:
+        # Extract exercise number from message
         exercise_num = message.text.split()[-1]
         if not exercise_num.isdigit():
             raise ValueError
-
+            
         full_key = f"{key_prefix}_{exercise_num}"
         data = workout_videos[full_key]
-
+        
+        # Send description and video
         bot.send_message(message.chat.id, data["text"])
         bot.send_video(message.chat.id, data["video"])
-
+        
+        # Continue prompt
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Yes, Continue"), KeyboardButton("No, Finish"))
-        bot.send_message(
-            message.chat.id,
-            "Do you want to continue working out or finish your session?",
-            reply_markup=markup,
-        )
+        bot.send_message(message.chat.id, "Do you want to continue working out or finish your session?", reply_markup=markup)
         bot.register_next_step_handler(message, lambda m: continue_workout(m, key_prefix.split('_')[0]))
 
     except (KeyError, ValueError):
@@ -483,29 +495,22 @@ def continue_workout(message, location):
     if message.text == "Yes, Continue":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Arms"), KeyboardButton("Legs"), KeyboardButton("Abs"), KeyboardButton("Chest"))
-        bot.send_message(
-            message.chat.id,
-            f"What body part next at {location.capitalize()}?",
-            reply_markup=markup,
-        )
+        bot.send_message(message.chat.id, 
+                        f"What body part next at {location.capitalize()}?",
+                        reply_markup=markup)
         bot.register_next_step_handler(message, lambda m: select_exercise(m, location))
     elif message.text == "No, Finish":
         markup = ReplyKeyboardMarkup(resize_keyboard=True)
         markup.add(KeyboardButton("Start New Session 🏋️"))
-        bot.send_message(
-            message.chat.id,
-            "Great job completing your workout! 🎉\n"
-            "Ready for another session?",
-            reply_markup=markup,
-        )
+        bot.send_message(message.chat.id, 
+                        "Great job completing your workout! 🎉\n"
+                        "Ready for another session?",
+                        reply_markup=markup)
     else:
         bot.send_message(message.chat.id, "Please choose a valid option:")
         bot.register_next_step_handler(message, lambda m: continue_workout(m, location))
 
-@app.route('/')
-def home():
-    return "Bot is running!"
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Use Heroku's assigned port
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    set_webhook()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
