@@ -7,7 +7,7 @@ import os  # <-- ADD THIS
 app = Flask(__name__)  # <-- ADD THIS
 
 # Get token from environment variables (secure)
-TOKEN = os.environ.get('TOKEN', "7666196084:AAH_Wn7kaZEy_-g-EnhN-eEqFf0svH_PAqU")  # <-- MODIFIED
+TOKEN = os.environ.get('TOKEN')  
 bot = telebot.TeleBot(TOKEN)
 
 
@@ -386,7 +386,7 @@ def webhook():
 
 def set_webhook():
     bot.remove_webhook()
-    webhook_url = f'https://github.com/khngrva/yoursweetfitness_bot.git'  # Replace with your actual URL
+    webhook_url = f'https://yoursweetfitness-bot.onrender.com/webhook'  
     bot.set_webhook(url=webhook_url)
 
 # Handlers remain the same until select_exercise
